@@ -10,7 +10,7 @@ Esta sección del repositorio contiene la aplicación cliente (Frontend) desarro
 * **Herramienta de Construcción:** [Vite](https://vite.dev/) (Rápido y optimizado para producción)
 * **Enrutamiento:** Vue Router (Para una navegación fluida sin recargar la página)
 * **Estilos y Maquetación:** CSS3 Moderno / Flexbox / Grid Customizados
-* **Cliente HTTP:** Axios (Para la comunicación con la API del Backend)
+* **Cliente HTTP:** Consultas API REST mediante Fetch API con HTTPS
 
 ## 📦 Instalación y Configuración Local
 
