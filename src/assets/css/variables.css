@@ -1,0 +1,30 @@
+/* Variables de colores - Tema Oscuro (por defecto) */
+:root {
+    --morado: #8b5cf6;
+    --morado-claro: #a78bfa;
+    --fondo-oscuro: #0f0f0f;
+    --fondo-negro: #000000;
+    --fondo-tarjeta: #1a1a1a;
+    --fondo-hover: #2a2a2a;
+    --texto-blanco: #ffffff;
+    --texto-gris: #b3b3b3;
+    --borde: #2a2a2a;
+    --texto-titulo: white;
+    --reproductor-texto: #ffffff;
+    --sombra: rgba(0, 0, 0, 0.3);
+}
+
+/* Variables - Tema Claro */
+body.light-mode {
+    --morado: #7c3aed;
+    --morado-claro: #8b5cf6;
+    --fondo-oscuro: #ede9fe;
+    --fondo-negro: #f3f2fa;
+    --fondo-tarjeta: #ffffff;
+    --fondo-hover: #eeebfc;
+    --texto-blanco: #0d0d14;
+    --texto-gris: #5a5a70;
+    --borde: #dcd9ef;
+    --reproductor-texto: #0d0d14;
+    --sombra: rgba(80, 40, 160, 0.09);
+}
