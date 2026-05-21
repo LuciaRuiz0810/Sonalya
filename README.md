@@ -1,9 +1,22 @@
-<<<<<<< HEAD
-# Vue 3 + Vite
+# 🎵 Sonalya - Frontend (Client Application)
 
-This template should help get you started developing with Vue 3 in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+Sonalya es una plataforma web de música en streaming moderna e intuitiva que consume datos en tiempo real de la API de Deezer, permitiendo a los usuarios descubrir géneros, consultar álbumes, gestionar favoritos y revisar eventos.
 
-Learn more about IDE Support for Vue in the [Vue Docs Scaling up Guide](https://vuejs.org/guide/scaling-up/tooling.html#ide-support).
-=======
-# Sonalya
->>>>>>> f19c2c7f3af99911db7abd75ed3f1dec0b0c8401
+Esta sección del repositorio contiene la aplicación cliente (Frontend) desarrollada como una **Single Page Application (SPA)** utilizando tecnologías modernas de desarrollo web.
+
+## 🚀 Tecnologías Utilizadas
+
+* **Framework Principal:** [Vue.js 3](https://vuejs.org/) (Composition API)
+* **Herramienta de Construcción:** [Vite](https://vite.dev/) (Rápido y optimizado para producción)
+* **Enrutamiento:** Vue Router (Para una navegación fluida sin recargar la página)
+* **Estilos y Maquetación:** CSS3 Moderno / Flexbox / Grid Customizados
+* **Cliente HTTP:** Axios (Para la comunicación con la API del Backend)
+
+## 📦 Instalación y Configuración Local
+
+Si deseas clonar este proyecto y ejecutarlo en tu ordenador local, sigue estos pasos:
+
+1. **Clonar el repositorio:**
+   ```bash
+   git clone [https://github.com/tu-usuario/FrontendSonalya.git](https://github.com/tu-usuario/FrontendSonalya.git)
+   cd FrontendSonalya
