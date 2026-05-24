@@ -46,9 +46,10 @@ export const usuario = {
     artistas:                   ()   => api.get('/artistas-plataforma'),
     artistaPlataforma:          (id) => api.get(`/artistas-plataforma/${id}`),
     cancionesAlbumArtista:      (_artistaId, albumId) => api.get(`/artistas-plataforma/album/${albumId}`),
-    seguirArtistaPlataforma:    (id) => api.post(`/artistas-plataforma/${id}/seguir`, {}),
+    seguirArtistaPlataforma:      (id) => api.post(`/artistas-plataforma/${id}/seguir`, {}),
     dejarSeguirArtistaPlataforma: (id) => api.delete(`/artistas-plataforma/${id}/seguir`),
-    estadoSeguimientoArtista:   (id) => api.get(`/artistas-plataforma/${id}/estado-seguimiento`),
+    estadoSeguimientoArtista:     (id) => api.get(`/artistas-plataforma/${id}/estado-seguimiento`),
+    artistasPlataformaSeguidos:   ()   => api.get('/artistas-plataforma/seguidos'),
     reproducirCancionArtista:   (artistaId, cancionId) => api.post(`/artistas-plataforma/${artistaId}/reproducir/${cancionId}`, {}),
 
     // Cuenta

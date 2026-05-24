@@ -59,7 +59,7 @@ import PaginaAdmin              from '@/components/paginas/PaginaAdmin.vue'
 import FooterApp                from '@/components/plantilla/Footer.vue'
 
 // Funciones del almacén global
-import { almacenApp, inicializarTema, mostrarNotificacion, sincronizarUsuario, cerrarSesion, cargarFavsCanciones, cargarMisPlaylists } from '@/stores/appStore'
+import { almacenApp, inicializarTema, mostrarNotificacion, sincronizarUsuario, cerrarSesion, cargarFavsCanciones, cargarMisPlaylists, cacheLimpiar } from '@/stores/appStore'
 import { api } from '@/servicios/api'
 
 // =============================================================================
@@ -380,8 +380,16 @@ onMounted(async () => {
 })
 
 // Al iniciar/cerrar sesión: navegar al inicio y limpiar todo el estado de navegación
-watch(() => almacenApp.autenticado, (loggedIn) => {
+watch(() => almacenApp.autenticado, async (loggedIn) => {
     if (loggedIn) {
+        // Limpiar caché del usuario anterior antes de cargar datos del nuevo
+        cacheLimpiar()
+        // Re-sync tipo desde la BD para asegurar coherencia (el login response podría
+        // tener datos obsoletos si la BD cambió desde la última sesión).
+        try {
+            const respuesta = await api.get('/usuario/perfil')
+            sincronizarUsuario(respuesta.data)
+        } catch (_) {}
         cargarFavsCanciones()
         cargarMisPlaylists()
     }

@@ -194,9 +194,9 @@ export function cerrarSesion() {
     almacenApp.favsCancionesCargados = false
     almacenApp.misPlaylists = []
     almacenApp.playlistsCargadas = false
-    // Limpiar caché de datos personalizados
-    cacheLimpiar(['inicio_recomendaciones', 'inicio_populares', 'historial',
-                  'eventos_seguidos', 'eventos_mis_entradas'])
+    // Limpiar TODA la caché: artista_*, album_*, eventos_lista, etc. contienen
+    // datos por usuario (siguiendo, guardado, tiene_entrada) y deben borrarse
+    cacheLimpiar()
     cerrarReproductor()
 }
 

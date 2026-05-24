@@ -37,7 +37,15 @@ async function cargarPerfil() {
     try {
         const r = await usuarioSvc.miPerfilArtista()
         perfilArtista.value = r.artista
-    } catch (_) {}
+    } catch (err) {
+        // 403 significa que el tipo en BD no es 'artista' — re-sync para corregir el estado
+        if (err?.httpStatus === 403) {
+            try {
+                const respuesta = await api.get('/usuario/perfil')
+                sincronizarUsuario(respuesta.data)
+            } catch (_) {}
+        }
+    }
 }
 
 async function cargarEstadisticas() {
@@ -170,10 +178,15 @@ async function guardarCancion() {
         const fd = new FormData()
         fd.append('titulo',   formCancion.value.titulo.trim())
         fd.append('duracion', duracionDetectada.value || cancionEdicion.value?.duracion || '0:00')
-        if (formCancion.value.genero)   fd.append('genero',   formCancion.value.genero)
-        if (formCancion.value.album_id) fd.append('album_id', formCancion.value.album_id)
-        if (archivoImagenCancion.value) fd.append('imagen',   archivoImagenCancion.value)
-        if (archivoAudioCancion.value)  fd.append('audio',    archivoAudioCancion.value)
+        if (formCancion.value.genero) fd.append('genero', formCancion.value.genero)
+        // Siempre incluir album_id en actualizaciones para permitir desvincular el álbum
+        if (cancionEdicion.value) {
+            fd.append('album_id', formCancion.value.album_id ?? '')
+        } else if (formCancion.value.album_id) {
+            fd.append('album_id', formCancion.value.album_id)
+        }
+        if (archivoImagenCancion.value) fd.append('imagen', archivoImagenCancion.value)
+        if (archivoAudioCancion.value)  fd.append('audio',  archivoAudioCancion.value)
 
         if (cancionEdicion.value) {
             const r = await api.upload(`/artista-cuenta/canciones/${cancionEdicion.value.id}`, fd)
@@ -186,8 +199,11 @@ async function guardarCancion() {
             mostrarNotificacion('Canción subida')
         }
         mostrarModalCancion.value = false
-    } catch (_) {
-        mostrarNotificacion('Error al guardar la canción')
+    } catch (err) {
+        const detalle = err?.errors
+            ? Object.values(err.errors).flat().join(' · ')
+            : (err?.message || 'Error al guardar la canción')
+        mostrarNotificacion(detalle)
     } finally {
         guardandoCancion.value = false
     }
@@ -266,10 +282,17 @@ async function guardarAlbum() {
     try {
         const fd = new FormData()
         fd.append('titulo', formAlbum.value.titulo.trim())
-        if (formAlbum.value.genero)       fd.append('genero',       formAlbum.value.genero)
-        if (formAlbum.value.descripcion)  fd.append('descripcion',  formAlbum.value.descripcion)
-        if (formAlbum.value.publicado_at) fd.append('publicado_at', formAlbum.value.publicado_at)
-        if (archivoImagenAlbum.value)     fd.append('imagen',       archivoImagenAlbum.value)
+        // En edición siempre enviar los campos opcionales para poder limpiarlos
+        if (albumEdicion.value) {
+            fd.append('genero',       formAlbum.value.genero       ?? '')
+            fd.append('descripcion',  formAlbum.value.descripcion  ?? '')
+            fd.append('publicado_at', formAlbum.value.publicado_at ?? '')
+        } else {
+            if (formAlbum.value.genero)       fd.append('genero',       formAlbum.value.genero)
+            if (formAlbum.value.descripcion)  fd.append('descripcion',  formAlbum.value.descripcion)
+            if (formAlbum.value.publicado_at) fd.append('publicado_at', formAlbum.value.publicado_at)
+        }
+        if (archivoImagenAlbum.value) fd.append('imagen', archivoImagenAlbum.value)
 
         if (albumEdicion.value) {
             const r = await api.upload(`/artista-cuenta/albumes/${albumEdicion.value.id}`, fd)
@@ -283,8 +306,11 @@ async function guardarAlbum() {
             albumExpandidoId.value = r.album.id
         }
         mostrarModalAlbum.value = false
-    } catch (_) {
-        mostrarNotificacion('Error al guardar el álbum')
+    } catch (err) {
+        const detalle = err?.errors
+            ? Object.values(err.errors).flat().join(' · ')
+            : (err?.message || 'Error al guardar el álbum')
+        mostrarNotificacion(detalle)
     } finally {
         guardandoAlbum.value = false
     }

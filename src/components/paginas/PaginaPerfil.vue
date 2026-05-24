@@ -115,17 +115,28 @@ function alCambiarSubtabFav(tab) {
 }
 
 // ── Artistas seguidos ─────────────────────────────────────────────────────────
-const artistasSeguidos     = ref([])
-const cargandoArtistas     = ref(false)
+const artistasDeezer         = ref([])
+const artistasPlataformaList = ref([])
+const cargandoArtistas       = ref(false)
+
+const artistasSeguidos = computed(() => [
+    ...artistasDeezer.value,
+    ...artistasPlataformaList.value,
+])
 
 async function cargarArtistas() {
     if (!almacenApp.autenticado) return
     try {
         cargandoArtistas.value = true
-        const resp = await usuarioSvc.artistasSeguidos()
-        artistasSeguidos.value = resp.artistas || []
+        const [respDeezer, respPlataforma] = await Promise.all([
+            usuarioSvc.artistasSeguidos(),
+            usuarioSvc.artistasPlataformaSeguidos(),
+        ])
+        artistasDeezer.value         = (respDeezer.artistas || []).map(a => ({ ...a, _tipo: 'deezer' }))
+        artistasPlataformaList.value = (respPlataforma.artistas || []).map(a => ({ ...a, _tipo: 'plataforma' }))
     } catch (_) {
-        artistasSeguidos.value = []
+        artistasDeezer.value         = []
+        artistasPlataformaList.value = []
     } finally {
         cargandoArtistas.value = false
     }
@@ -133,8 +144,13 @@ async function cargarArtistas() {
 
 async function dejarDeSeguir(artista) {
     try {
-        await usuarioSvc.dejarSeguirArtista(artista.deezer_id)
-        artistasSeguidos.value = artistasSeguidos.value.filter(a => a.id !== artista.id)
+        if (artista._tipo === 'plataforma') {
+            await usuarioSvc.dejarSeguirArtistaPlataforma(artista.id)
+            artistasPlataformaList.value = artistasPlataformaList.value.filter(a => a.id !== artista.id)
+        } else {
+            await usuarioSvc.dejarSeguirArtista(artista.deezer_id)
+            artistasDeezer.value = artistasDeezer.value.filter(a => a.id !== artista.id)
+        }
         mostrarNotificacion(`Dejaste de seguir a ${artista.nombre}`)
     } catch (_) {
         mostrarNotificacion('Error al dejar de seguir')
@@ -142,7 +158,11 @@ async function dejarDeSeguir(artista) {
 }
 
 function verArtista(artista) {
-    emitir('abrirPlaylist', { tipo: 'artista', id: Number(artista.deezer_id), nombre: artista.nombre })
+    if (artista._tipo === 'plataforma') {
+        emitir('abrirPlaylist', { tipo: 'artista_plataforma', id: artista.id, nombre: artista.nombre })
+    } else {
+        emitir('abrirPlaylist', { tipo: 'artista', id: Number(artista.deezer_id), nombre: artista.nombre })
+    }
 }
 
 function alToggleFavCancion(cancion, estado) {
@@ -154,7 +174,7 @@ function alToggleFavCancion(cancion, estado) {
 // ── Estadísticas del header ───────────────────────────────────────────────────
 const cantidadPlaylists = computed(() => misPlaylists.value.length)
 const cantidadFav       = computed(() => cancionesFav.value.length)
-const cantidadArtistas  = computed(() => artistasSeguidos.value.length)
+const cantidadArtistas  = computed(() => artistasSeguidos.value.length)  // includes both Deezer + Sonalya
 
 // ── Carga inicial ─────────────────────────────────────────────────────────────
 onMounted(async () => {
@@ -465,7 +485,7 @@ async function guardarPerfil() {
                         <p class="sub">Entra en el perfil de un artista y dale a "Seguir"</p>
                     </div>
                     <div v-else class="cuadricula-artistas">
-                        <div v-for="artista in artistasSeguidos" :key="artista.id" class="tarjeta-artista tarjeta-artista-clickable" @click="verArtista(artista)">
+                        <div v-for="artista in artistasSeguidos" :key="(artista._tipo || 'deezer') + '_' + artista.id" class="tarjeta-artista tarjeta-artista-clickable" @click="verArtista(artista)">
                             <img :src="artista.imagen || `https://ui-avatars.com/api/?name=${encodeURIComponent(artista.nombre)}&background=8b5cf6&color=fff&size=140`" :alt="artista.nombre" class="imagen-artista">
                             <h3>{{ artista.nombre }}</h3>
                             <p>{{ artista.descripcion || 'Artista' }}</p>

@@ -82,17 +82,22 @@ class ArtistaPublicoController extends Controller
     // Seguir / dejar de seguir
     public function seguir(Request $request, int $id)
     {
-        $artistaObj = User::where('tipo', 'artista')->findOrFail($id);
-        $seguidor   = $request->user();
+        $seguidor = $request->user();
 
-        if ($seguidor->id === $id) {
+        User::where('tipo', 'artista')->findOrFail($id);
+
+        if ((int) $seguidor->id === $id) {
             return response()->json(['message' => 'No puedes seguirte a ti mismo.'], 422);
         }
 
-        SeguidorArtista::firstOrCreate([
-            'artista_id'  => $id,
-            'seguidor_id' => $seguidor->id,
-        ]);
+        try {
+            SeguidorArtista::firstOrCreate([
+                'artista_id'  => $id,
+                'seguidor_id' => $seguidor->id,
+            ]);
+        } catch (\Illuminate\Database\QueryException) {
+            // Clave duplicada por petición simultánea: ya está siguiendo, OK
+        }
 
         return response()->json(['siguiendo' => true]);
     }
@@ -104,6 +109,18 @@ class ArtistaPublicoController extends Controller
             ->delete();
 
         return response()->json(['siguiendo' => false]);
+    }
+
+    public function misSeguidos(Request $request)
+    {
+        $userId = $request->user()->id;
+        $artistas = User::where('tipo', 'artista')
+            ->whereHas('seguidores', fn($q) => $q->where('seguidor_id', $userId))
+            ->with('artistaPerfil')
+            ->withCount('seguidores')
+            ->get()
+            ->map(fn($u) => $this->formatearCard($u));
+        return response()->json(['artistas' => $artistas]);
     }
 
     public function estadoSeguimiento(Request $request, int $id)

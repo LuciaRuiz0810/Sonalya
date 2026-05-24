@@ -73,11 +73,15 @@ async function toggleSeguir() {
             await usuarioSvc.seguirArtistaPlataforma(props.artistaId)
             mostrarNotificacion(`Siguiendo a ${artista.value.nombre}`)
         }
-    } catch (_) {
-        // Revertir si falla
+    } catch (err) {
         siguiendo.value = erasSiguiendo
         artista.value.seguidores = seguidoresAntes
-        mostrarNotificacion('Error al actualizar seguimiento')
+        if (err?.httpStatus === 401) {
+            abrirModalAuth('login')
+            mostrarNotificacion('Inicia sesión para seguir artistas')
+        } else {
+            mostrarNotificacion(err?.message || 'Error al actualizar seguimiento')
+        }
     } finally {
         cargandoSeg.value = false
     }

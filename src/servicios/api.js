@@ -13,8 +13,17 @@ async function peticion(ruta, opciones = {}) {
         ...opciones,
         headers: obtenerCabeceras(),
     })
-    const datos = await respuesta.json()
-    if (!respuesta.ok) throw datos
+    let datos
+    try {
+        datos = await respuesta.json()
+    } catch {
+        const err = { message: 'Error del servidor', httpStatus: respuesta.status }
+        throw err
+    }
+    if (!respuesta.ok) {
+        datos.httpStatus = respuesta.status
+        throw datos
+    }
     return datos
 }
 
@@ -24,8 +33,17 @@ async function peticionFormData(ruta, formData) {
         headers: obtenerCabeceras(true),
         body: formData,
     })
-    const datos = await respuesta.json()
-    if (!respuesta.ok) throw datos
+    let datos
+    try {
+        datos = await respuesta.json()
+    } catch {
+        const err = { message: 'Error del servidor', httpStatus: respuesta.status }
+        throw err
+    }
+    if (!respuesta.ok) {
+        datos.httpStatus = respuesta.status
+        throw datos
+    }
     return datos
 }
 

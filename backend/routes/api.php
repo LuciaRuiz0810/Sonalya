@@ -29,6 +29,7 @@ Route::get('musica/buscar-plataforma', [ArtistaPublicoController::class, 'buscar
 // Artistas de la plataforma (públicos)
 Route::get('artistas-plataforma',                     [ArtistaPublicoController::class, 'listar']);
 Route::get('artistas-plataforma/album/{albumId}',     [ArtistaPublicoController::class, 'cancionesAlbum']);
+Route::get('artistas-plataforma/seguidos',            [ArtistaPublicoController::class, 'misSeguidos'])->middleware('auth:sanctum');
 Route::get('artistas-plataforma/{id}',                [ArtistaPublicoController::class, 'perfil']);
 Route::post('artistas-plataforma/{id}/reproducir/{cancionId}', [ArtistaPublicoController::class, 'reproducir']);
 
@@ -113,7 +114,6 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     // Eventos (protegidos)
-    Route::get('/eventos',                    [EventoController::class, 'index']);
     Route::get('/eventos/seguidos',           [EventoController::class, 'eventosSeguidos']);
     Route::post('/eventos/{id}/comprar',      [EventoController::class, 'comprar']);
     Route::get('/mis-entradas',               [EventoController::class, 'misEntradas']);
